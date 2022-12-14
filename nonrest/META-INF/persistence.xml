@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<persistence xmlns="https://jakarta.ee/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd"
+             version="3.0">
+  <persistence-unit name="default">
+
+      <class>akademikerne.domain.table.AdminrRoller</class>
+      <class>akademikerne.domain.table.Afdelinger</class>
+      <class>akademikerne.domain.table.Brugere</class>
+      <class>akademikerne.domain.table.RettighedsTypeSystem</class>
+      <class>akademikerne.domain.table.RettighedsTypeSystemBruger</class>
+      <class>akademikerne.domain.table.Rettighedstyper</class>
+      <class>akademikerne.domain.table.RollerBruger</class>
+      <class>akademikerne.domain.table.RollerBrugerSystem</class>
+      <class>akademikerne.domain.table.System2</class>
+      <class>akademikerne.domain.table.Titler</class>
+      <class>akademikerne.domain.table.Adminrroller</class>
+      <class>akademikerne.domain.table.Rettighedstypesystem</class>
+      <class>akademikerne.domain.table.Rettighedstypesystembruger</class>
+      <class>akademikerne.domain.table.Rollerbruger</class>
+      <class>akademikerne.domain.table.Rollerbrugersystem</class>
+      <class>akademikerne.domain.table.Adminroller</class>
+      <class>akademikerne.domain.table.Sysdiagrams</class>
+      <properties>
+          <property name="hibernate.connection.url" value="jdbc:sqlserver://PW01C03K:1433;database=Akademikerne"/>
+          <property name="hibernate.connection.driver_class" value="com.microsoft.sqlserver.jdbc.SQLServerDriver"/>
+      </properties>
+  </persistence-unit>
+</persistence>
