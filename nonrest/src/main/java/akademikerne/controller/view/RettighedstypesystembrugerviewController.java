@@ -62,10 +62,17 @@ public class RettighedstypesystembrugerviewController {
         System.out.println("afdelingsleder:" + afdelingslederid +" rollenavn: " + rollenavn);
 
         Date rightNow = new Date(System.currentTimeMillis());
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
+                findAllByAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoIsNull
+                        ( afdelingslederid, rollenavn);
 
-        return rettighedstypesystembrugerviewRepository.
-                findAllByAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoIsNullOrAfsluttetdatoAfter
-                        ( afdelingslederid, rollenavn, rightNow);
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoEquals
+                        ( afdelingslederid, rollenavn,rightNow);
+
+                list1.addAll(list2);
+
+                return list1;
 
     }
 
@@ -96,9 +103,19 @@ public class RettighedstypesystembrugerviewController {
         System.out.println("afdelingsleder:" + afdelingslederid +" rollenavn: " + rollenavn);
 
         Date rightNow = new Date(System.currentTimeMillis());
-        return rettighedstypesystembrugerviewRepository.
+        //Date rightNow = new Date(System.currentTimeMillis());
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
                 findAllByAfsluttetdatoBeforeAndAfdelingslederidEqualsAndRollenavnEquals
                         (rightNow, afdelingslederid, rollenavn);
+
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByAfsluttetdatoEqualsAndAfdelingslederidEqualsAndRollenavnEquals
+                        (rightNow, afdelingslederid, rollenavn);
+
+        list1.addAll(list2);
+
+        return list1;
+
 
     }
 
@@ -112,9 +129,17 @@ public class RettighedstypesystembrugerviewController {
 
         Date rightNow = new Date(System.currentTimeMillis());
 
-        return rettighedstypesystembrugerviewRepository.
-                findAllByRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoIsNullOrAfsluttetdatoAfter
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
+                findAllByRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoIsNull
+                        (rolleindehaverid, rollenavn);
+
+        List<Rettighedstypesystembrugerview>  list2 = rettighedstypesystembrugerviewRepository.
+                findAllByRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoAfter
                         (rolleindehaverid, rollenavn, rightNow);
+
+        list1.addAll(list2);
+
+        return list1;
 
     }
 
@@ -136,13 +161,22 @@ public class RettighedstypesystembrugerviewController {
     @GetMapping("/rettighedstypesystembrugerview/systemejer/history")
     List<Rettighedstypesystembrugerview> systemejerAllHistory() {
 
-        Integer  rolleindehaverid = AkademikerneApplication.getPrincipalUser().getBrugerid();
+        Integer rolleindehaverid = AkademikerneApplication.getPrincipalUser().getBrugerid();
         String rollenavn = UtilController.SYSTEM_EJER;
 
         Date rightNow = new Date(System.currentTimeMillis());
-        return rettighedstypesystembrugerviewRepository.
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
                 findAllByAfsluttetdatoBeforeAndRolleindehaveridEqualsAndRollenavnEquals
                         (rightNow, rolleindehaverid, rollenavn);
+
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByAfsluttetdatoEqualsAndRolleindehaveridEqualsAndRollenavnEquals
+                        (rightNow, rolleindehaverid, rollenavn);
+
+        list2.addAll(list1);
+
+        return list2;
+
     }
 
     @GetMapping("/rettighedstypesystembrugerview/afdelingsleder/active/stringsearch")
@@ -152,11 +186,19 @@ public class RettighedstypesystembrugerviewController {
         Integer  afdelingslederid = AkademikerneApplication.getPrincipalUser().getBrugerid();
         String rollenavn = UtilController.SYSTEM_EJER;
         Date rightNow = new Date(System.currentTimeMillis());
+        Date rightNow2 = new Date(System.currentTimeMillis());
 
-        return rettighedstypesystembrugerviewRepository.
-                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoIsNullOrAfsluttetdatoAfter
-                        (brugernavn, systemnavn, rettighedsnavn, afdelingslederid, rollenavn, rightNow );
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
+                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoIsNull
+                        (brugernavn, systemnavn, rettighedsnavn, afdelingslederid, rollenavn);
 
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndAfdelingslederidEqualsAndRollenavnEqualsAndAfsluttetdatoAfter
+                        (brugernavn, systemnavn, rettighedsnavn, afdelingslederid, rollenavn, rightNow);
+
+        list1.addAll(list2);
+
+        return list1;
     }
 
 
@@ -184,9 +226,18 @@ public class RettighedstypesystembrugerviewController {
         String rollenavn = UtilController.SYSTEM_EJER;
         Date rightNow = new Date(System.currentTimeMillis());
 
-        return rettighedstypesystembrugerviewRepository.
+        List<Rettighedstypesystembrugerview> list1 =  rettighedstypesystembrugerviewRepository.
                 findAllByAfsluttetdatoBeforeAndBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndAfdelingslederidEqualsAndRollenavnEquals
                         (rightNow, brugernavn, systemnavn, rettighedsnavn, afdelingslederid, rollenavn);
+
+        List<Rettighedstypesystembrugerview> list2 =  rettighedstypesystembrugerviewRepository.
+                findAllByAfsluttetdatoEqualsAndBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndAfdelingslederidEqualsAndRollenavnEquals
+                        (rightNow, brugernavn, systemnavn, rettighedsnavn, afdelingslederid, rollenavn);
+
+        list1.addAll(list2);
+
+        return list1;
+
 
     }
 
@@ -200,9 +251,18 @@ public class RettighedstypesystembrugerviewController {
         String rollenavn = UtilController.SYSTEM_EJER;
         Date rightNow = new Date(System.currentTimeMillis());
 
-        return rettighedstypesystembrugerviewRepository.
-                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoIsNullOrAfsluttetdatoAfter
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
+                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoIsNull
+                        (brugernavn, systemnavn, rettighedsnavn, rolleindehaverid, rollenavn);
+
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndRolleindehaveridEqualsAndRollenavnEqualsAndAfsluttetdatoAfter
                         (brugernavn, systemnavn, rettighedsnavn, rolleindehaverid, rollenavn,rightNow);
+
+        list1.addAll(list2);
+
+        return list1;
+
     }
 
     // Aggregate root
@@ -229,9 +289,19 @@ public class RettighedstypesystembrugerviewController {
         String rollenavn = UtilController.SYSTEM_EJER;
         Date rightNow = new Date(System.currentTimeMillis());
 
-        return rettighedstypesystembrugerviewRepository.
+        List<Rettighedstypesystembrugerview> list1 = rettighedstypesystembrugerviewRepository.
                 findAllByAfsluttetdatoBeforeAndBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndRolleindehaveridEqualsAndRollenavnEquals
                         (rightNow,brugernavn, systemnavn, rettighedsnavn, rolleindehaverid, rollenavn);
+
+        List<Rettighedstypesystembrugerview> list2 = rettighedstypesystembrugerviewRepository.
+                findAllByAfsluttetdatoEqualsAndBrugernavnContainingIgnoreCaseAndSystemnavnContainingIgnoreCaseAndRettighedsnavnContainingIgnoreCaseAndRolleindehaveridEqualsAndRollenavnEquals
+                        (rightNow,brugernavn, systemnavn, rettighedsnavn, rolleindehaverid, rollenavn);
+
+        list1.addAll(list2);
+
+        return list1;
+
+
     }
 
 

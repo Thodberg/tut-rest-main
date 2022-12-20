@@ -77,31 +77,48 @@ class RettighedstypesystembrugerController {
 
 
     @PostMapping("/rettighedstypesystembruger/revider")
-    Rettighedstypesystembruger reviderARettighedstypesystembruger(@RequestBody Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
+    Rettighedstypesystembrugerview reviderARettighedstypesystembruger(@RequestBody Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
 
-        if(!validateUserEditBruger(rettighedstypesystembrugerview)) return null;
-        Rettighedstypesystembruger rettighedstypesystembruger = getRettighedstypesystembruger(rettighedstypesystembrugerview);
+        if(this.validateUserEditBruger(rettighedstypesystembrugerview) == false) return null;
+
+        Rettighedstypesystembruger rettighedstypesystembruger = getRettighedstypesystembrugerFromView(rettighedstypesystembrugerview);
         rettighedstypesystembruger.setRevideretafid(AkademikerneApplication.getPrincipalUser().getBrugerid());
         Date revDate = new Date(System.currentTimeMillis());
         rettighedstypesystembruger.setRevideretdato(revDate);
-        if(!rettighedstypesystembruger.getNaesterevideringsdato().equals(null))
-            rettighedstypesystembruger.setNaesterevideringsdato( new Date(revDate.getTime() + 3600 * 1000 * 24 * 30 * rettighedstypesystembrugerview.getRevideringsfrekvens()));
-        else if (rettighedstypesystembruger.getNaesterevideringsdato().equals(null)) {
-            rettighedstypesystembruger.setNaesterevideringsdato(new Date( 3600 * 1000 * 24 * 30 * rettighedstypesystembrugerview.getRevideringsfrekvens() + System.currentTimeMillis()));
+        System.out.println("revisionsmåned er " + revDate.getMonth());
+        int md =rettighedstypesystembrugerview.getRevideringsfrekvens();
+        if(!(rettighedstypesystembruger.getNaesterevideringsdato()== null)) {
+           rettighedstypesystembruger.getNaesterevideringsdato().setMonth(md + rettighedstypesystembruger.getNaesterevideringsdato().getMonth());
+        }
+        else if (rettighedstypesystembruger.getNaesterevideringsdato() == null) {
+            Date date = new Date(System.currentTimeMillis());
+            int month = date.getMonth();
+            date.setMonth(month + md);
+            rettighedstypesystembruger.setNaesterevideringsdato(date);
         }
 
-        return rettighedstypesystembrugerRepository.save(rettighedstypesystembruger);
+        rettighedstypesystembrugerRepository.save(rettighedstypesystembruger);
+
+        Rettighedstypesystembrugerview rettighedstypesystembrugerviewFound =
+                this.getRettighedstypesystembrugerviewFromID(rettighedstypesystembrugerview.getRettighedstypesystembrugerId());
+
+        return rettighedstypesystembrugerviewFound;
 
     }
 
     @PostMapping("/rettighedstypesystembruger/afslut")
-    Rettighedstypesystembruger afslutRettighedstypesystembruger(@RequestBody Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
+    Rettighedstypesystembrugerview afslutRettighedstypesystembruger(@RequestBody Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
 
         if(!validateUserEditBruger(rettighedstypesystembrugerview)) return null;
-        Rettighedstypesystembruger rettighedstypesystembruger = getRettighedstypesystembruger(rettighedstypesystembrugerview);
+        Rettighedstypesystembruger rettighedstypesystembruger = getRettighedstypesystembrugerFromView(rettighedstypesystembrugerview);
         rettighedstypesystembruger.setAfsluttetafid(AkademikerneApplication.getPrincipalUser().getBrugerid());
         rettighedstypesystembruger.setAfsluttetdato(new Date(System.currentTimeMillis()));
-        return rettighedstypesystembrugerRepository.save(rettighedstypesystembruger);
+        rettighedstypesystembrugerRepository.save(rettighedstypesystembruger);
+
+        Rettighedstypesystembrugerview rettighedstypesystembrugerviewFound =
+                this.getRettighedstypesystembrugerviewFromID(rettighedstypesystembrugerview.getRettighedstypesystembrugerId());
+
+        return rettighedstypesystembrugerviewFound;
 
     }
 
@@ -136,7 +153,7 @@ class RettighedstypesystembrugerController {
 
 
 
-    private Rettighedstypesystembruger getRettighedstypesystembruger(Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
+    private Rettighedstypesystembruger getRettighedstypesystembrugerFromView(Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
         Integer id = rettighedstypesystembrugerview.getRettighedstypesystembrugerId();
         Optional<Rettighedstypesystembruger> rettighedstypesystembrugerFound = this.rettighedstypesystembrugerRepository.findById(id);
         return rettighedstypesystembrugerFound.get();
@@ -170,23 +187,38 @@ class RettighedstypesystembrugerController {
 
     }
 
-    
+    /**
+     * validates that the user has the rights to do the update
+     * @param rettighedstypesystembrugerview
+     * @return
+     */
     private boolean validateUserEditBruger(Rettighedstypesystembrugerview rettighedstypesystembrugerview) {
 
         Integer id = rettighedstypesystembrugerview.getRettighedstypesystembrugerId();
-        Optional<Rettighedstypesystembrugerview> rettighedstypesystembrugerviewFound = this.rettighedstypesystembrugerviewRepository.findById(id);
-        if(!rettighedstypesystembrugerviewFound.isPresent()) {
+        Rettighedstypesystembrugerview view = this.getRettighedstypesystembrugerviewFromID(id);
+        if(view == null) {
             return false;
         }
-
         Integer logedinUser = AkademikerneApplication.getPrincipalUser().getBrugerid();
 
-        if(!(rettighedstypesystembrugerviewFound.get().getAfdelingslederid() == logedinUser ||
-                (rettighedstypesystembrugerviewFound.get().getRolleindehaverid() == logedinUser &&
-                        rettighedstypesystembrugerviewFound.get().getRollenavn() == "Systemejer")))
-            return false;
+        boolean isSystemEjer = (view.getRolleindehaverid().equals(logedinUser) &&
+                view.getRollenavn().equals(UtilController.SYSTEM_EJER) );
+        boolean isAfdelingsleder = view.getAfdelingslederid().equals(logedinUser);
+            System.out.println("SystemEjer: " + UtilController.SYSTEM_EJER + "   " +  view.getRollenavn().trim());
+            System.out.println("Rolleindehaverid: " + logedinUser.intValue() + "   " +  view.getRolleindehaverid());
 
-        return true;
+         if(!(isSystemEjer || isAfdelingsleder))
+             return false;
+        else return true;
+
+    }
+
+    private Rettighedstypesystembrugerview getRettighedstypesystembrugerviewFromID(Integer id) {
+        List<Rettighedstypesystembrugerview> rettighedstypesystembrugerviewFounds =
+                this.rettighedstypesystembrugerviewRepository.
+                        findAllByRettighedstypesystembrugerIdEqualsAndRollenavnEquals(id, UtilController.SYSTEM_EJER);
+        if(rettighedstypesystembrugerviewFounds.isEmpty()) return null;
+        else return rettighedstypesystembrugerviewFounds.get(0);
 
     }
 
